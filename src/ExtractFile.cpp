@@ -140,7 +140,17 @@ WarframeExporter::extractFile(const LotusLib::PackageCollection& pkgs, const Lot
 	else
 	{
 		savePath = outputPath / std::filesystem::path(internalPath).relative_path();
-		savePath.replace_extension(extractor->getOutputExtension(fileEntry.commonHeader, &fileEntry.header, options));
+
+		try
+		{
+			savePath.replace_extension(extractor->getOutputExtension(fileEntry.commonHeader, &fileEntry.header, options));
+		}
+		catch (unknown_format_error& err)
+		{
+			//unsupported formats (e.g. a new audio compression) throw here, outside the per-file handler below
+			logger.error("Unknown Format: " + std::string(err.what()) + " " + internalPath);
+			return;
+		}
 
 		if (existingFileIdentical(fileEntry.headerNode.timeStamp, savePath))
 		{
