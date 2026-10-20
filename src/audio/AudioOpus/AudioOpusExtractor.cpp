@@ -1,4 +1,5 @@
 #include "audio/AudioOpus/AudioOpusExtractor.h"
+#include "ExporterExceptions.h"
 
 using namespace WarframeExporter::Audio;
 
@@ -13,7 +14,11 @@ void
 AudioOpusExtractor::extract(LotusLib::FileEntry& fileEntry, const LotusLib::PackageCollection& pkgs, const LotusLib::PackagesBin& pkgsBin, const std::filesystem::path& outputPath, const ExtractOptions options)
 {
 	AudioReader* reader = g_enumMapAudioOpusReader[fileEntry.commonHeader.type];
-	
+
+	if (reader == nullptr) {
+		throw unknown_format_error("No Opus audio reader for type " + std::to_string(fileEntry.commonHeader.type));
+	}
+
 	AudioHeader audioHeader;
 	reader->readHeader(&fileEntry.header, fileEntry.commonHeader, audioHeader);
 
@@ -33,7 +38,11 @@ void
 AudioOpusExtractor::extract(LotusLib::FileEntry& fileEntry, const LotusLib::PackageCollection& pkgs, const LotusLib::PackagesBin& pkgsBin, std::ostream& outStream, ExtractOptions options)
 {
 	AudioReader* reader = g_enumMapAudioOpusReader[fileEntry.commonHeader.type];
-	
+
+	if (reader == nullptr) {
+		throw unknown_format_error("No Opus audio reader for type " + std::to_string(fileEntry.commonHeader.type));
+	}
+
 	AudioHeader audioHeader;
 	reader->readHeader(&fileEntry.header, fileEntry.commonHeader, audioHeader);
 
